@@ -1,8 +1,14 @@
 import logging
+import os
+
+import glawit.core.main
+
+logger = logging.getLogger(
+)
 
 
 # Common entry point for Lambda functions invoked by API Gateway
-def entry_point(event, handler, context):
+def entry_point(context, event, handler):
     stage_variables = event['stageVariables']
 
     logging_level = getattr(
@@ -14,8 +20,14 @@ def entry_point(event, handler, context):
         level=logging_level,
     )
 
-    owner = stage_variables['github_owner']
-    repo = stage_variables['github_repo']
+    github_owner = os.environ['GITHUB_OWNER']
+    github_repo = os.environ['GITHUB_REPO']
+
+    logger.debug(
+        'GitHub repository: %s/%s',
+        github_owner,
+        github_repo,
+    )
 
     body = event['body']
     headers = event['headers']
@@ -32,10 +44,10 @@ def entry_point(event, handler, context):
             validate=True,
         )
 
-    return_value = glawit.main.galwit(
+    return_value = glawit.core.main.process_request(
         body=body,
-        github_owner = owner,
-        github_repo = repo,
+        github_owner=github_owner,
+        github_repo=github_repo,
         handler=handler,
         headers=headers,
     )

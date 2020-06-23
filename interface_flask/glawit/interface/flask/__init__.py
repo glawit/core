@@ -1,3 +1,5 @@
+import logging
+
 import flask
 import werkzeug.datastructures
 
@@ -7,6 +9,9 @@ import glawit.api.locks.verify
 import glawit.api.objects.batch
 import glawit.api.verify
 import glawit.main
+
+logger = logging.getLogger(
+)
 
 app = flask.Flask(
     __name__,

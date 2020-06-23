@@ -11,7 +11,7 @@ logger = logging.getLogger(
 )
 
 
-def galwit(body, github_owner, github_repo, handler, headers):
+def process_request(body, github_owner, github_repo, handler, headers):
     try:
         authorization_header_value = headers['authorization']
     except KeyError:
