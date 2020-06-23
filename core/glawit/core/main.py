@@ -4,8 +4,10 @@ import logging
 
 import gql
 import gql.transport.requests
+import jinja2
 
-import glawit
+import glawit.core.access
+import glawit.core.jinja2
 
 logger = logging.getLogger(
 )
@@ -114,75 +116,117 @@ def process_request(body, github_owner, github_repo, handler, headers):
         )
 
         client = gql.Client(
-            fetch_schema_from_transport=True,
+            fetch_schema_from_transport=False,
             transport=transport,
         )
 
-        query = gql.gql(
-            f'''
-                query {{
-                    repository( owner : "{github_owner}" , name : "{github_repo}" ) {{
-                        viewerPermission
-                    }}
-                }}
-            ''',
+        jinja2_environment = jinja2.Environment(
+            loader=glawit.core.jinja2.loader,
         )
 
-        result = client.execute(
-            query,
+        template = jinja2_environment.get_template(
+            'github.graphql.j2',
         )
 
-        logger.debug(
-            'GitHub query result: %s',
-            result,
+        graphql_query_code = template.render(
+            owner=github_owner,
+            repo=github_repo,
         )
 
-        viewer_permission = result['repository']['viewerPermission']
-        viewer_permission = glawit.RepositoryAccess.READONLY
+        graphql_query = gql.gql(
+            graphql_query_code,
+        )
 
-        if result:
-            body_type = type(
-                body,
+        try:
+            result = client.execute(
+                graphql_query,
             )
-
-            if body_type == dict:
-                data = body
-            else:
-                # FIXME
-                #assert header_says_body_is_json
-
-                logger.debug(
-                    'body: %s',
-                    body,
-                )
-
-                data = json.loads(
-                    body,
-                )
-
-            config = {
-                'github_owner': github_owner,
-                'github_repo': github_repo,
-                'store_bucket': 'git-lfs.lalala.eu',
-            }
-            response = handler(
-                config=config,
-                data=data,
-                viewer_permission=viewer_permission,
-            )
-        else:
+        except Exception:
             response = {
                 'statusCode': 403,
                 'headers': {
                     'Content-Type': 'application/vnd.git-lfs+json',
                 },
                 'body': {
-                    'message': 'forbidden',
+                    'message': 'The GitHub API token provided lacks access to this GitHub repository.',
                     # FIXME
                     'documentation_url': 'https://mo.in/',
                 },
                 'isBase64Encoded': False,
             }
+        else:
+            logger.debug(
+                'GitHub query result: %s',
+                result,
+            )
+
+            result_repository = result['repository']
+            if result_repository:
+                viewer_permission = result_repository['viewerPermission']
+
+                viewer_access = glawit.core.access.RepositoryAccess[viewer_permission]
+
+                # FIXME
+                minimum_access_setting = 'ADMIN'
+                minimum_access = glawit.core.access.RepositoryAccess[minimum_access_setting]
+
+                enough = viewer_access >= minimum_access
+
+                if enough:
+                    body_type = type(
+                        body,
+                    )
+
+                    if body_type == dict:
+                        data = body
+                    else:
+                        # FIXME
+                        #assert header_says_body_is_json
+
+                        logger.debug(
+                            'body: %s',
+                            body,
+                        )
+
+                        data = json.loads(
+                            body,
+                        )
+
+                    config = {
+                        'github_owner': github_owner,
+                        'github_repo': github_repo,
+                        'store_bucket': 'git-lfs.lalala.eu',
+                    }
+
+                    response = handler(
+                        config=config,
+                        data=data,
+                        viewer_permission=viewer_permission,
+                    )
+                else:
+                    response = {
+                        'statusCode': 403,
+                        'headers': {
+                            'Content-Type': 'application/vnd.git-lfs+json',
+                        },
+                        'body': {
+                            'message': 'Your permission level for this repository is not enough.',
+                            'documentation_url': 'https://help.github.com/en/github/getting-started-with-github/access-permissions-on-github',
+                        },
+                        'isBase64Encoded': False,
+                    }
+            else:
+                response = {
+                    'statusCode': 403,
+                    'headers': {
+                        'Content-Type': 'application/vnd.git-lfs+json',
+                    },
+                    'body': {
+                        'message': 'It seems the GitHub repository is private and the GitHub API token provided lacks access to private repositories. Grant it the corresponding scope and try again.',
+                        'documentation_url': 'https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/#available-scopes',
+                    },
+                    'isBase64Encoded': False,
+                }
 
     try:
         body = response['body']
