@@ -28,40 +28,6 @@ s3 = boto3.client(
 
 
 def post(event, context):
-    stage_variables = event['stageVariables']
-
-    logging_level = getattr(
-        logging,
-        stage_variables['logging_level'],
-    )
-
-    logger.setLevel(
-        logging_level,
-    )
-
-    is_base64_encoded = event['isBase64Encoded']
-
-    body = event['body']
-
-    if is_base64_encoded:
-        logger.debug(
-            'request body is Base64-encoded',
-        )
-
-        body = base64.b64decode(
-            body,
-            validate=True,
-        )
-
-    logger.debug(
-        'body: %s',
-        body,
-    )
-
-    data = json.loads(
-        body,
-    )
-
     operation = data['operation']
 
     bucket = os.environ['Bucket']

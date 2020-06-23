@@ -36,75 +36,75 @@ def process_request(body, github_owner, github_repo, handler, headers):
             'Authorization header present',
         )
 
-        pieces = authorization_header_value.split(
-            maxsplit=1,
-            sep=' ',
-        )
-
-        authorization_type = pieces[0]
-        authorization_credentials = pieces[1]
-
-        logger.debug(
-            'authorization type: %s',
-            authorization_type,
-        )
-
-        token = None
-
-        if authorization_type == 'Basic':
-            logger.debug(
-                'encoded authorization credentials: %s',
-                authorization_credentials,
-            )
-
-            authorization_credentials = base64.b64decode(
-                authorization_credentials,
-                validate=True,
-            )
-
-            authorization_credentials = authorization_credentials.decode(
-                'utf-8',
-            )
-
-            logger.debug(
-                'decoded authorization credentials: %s',
-                authorization_credentials,
-            )
-
-            pieces = authorization_credentials.split(
-                sep=':',
-            )
-
-            username = pieces[0]
-            password = pieces[1]
-
-            logger.debug(
-                'username: %s',
-                username,
-            )
-
-            logger.debug(
-                'password: %s',
-                password,
-            )
-
-            token = password
-        elif authorization_type == 'Token':
-            token = authorization_credentials
-        else:
-            response = {
-                'statusCode': 401,
-                'headers': {
-                    'Content-Type': 'application/vnd.git-lfs+json',
-                    'LFS-Authenticate': 'Basic realm="Git LFS", charset="UTF-8"',
-                },
-                'body': {
-                    'message': 'missing authentication',
-                    # FIXME
-                    'documentation_url': 'https://mo.in/',
-                },
-                'isBase64Encoded': False,
-            }
+#        pieces = authorization_header_value.split(
+#            maxsplit=1,
+#            sep=' ',
+#        )
+#
+#        authorization_type = pieces[0]
+#        authorization_credentials = pieces[1]
+#
+#        logger.debug(
+#            'authorization type: %s',
+#            authorization_type,
+#        )
+#
+#        token = None
+#
+#        if authorization_type == 'Basic':
+#            logger.debug(
+#                'encoded authorization credentials: %s',
+#                authorization_credentials,
+#            )
+#
+#            authorization_credentials = base64.b64decode(
+#                authorization_credentials,
+#                validate=True,
+#            )
+#
+#            authorization_credentials = authorization_credentials.decode(
+#                'utf-8',
+#            )
+#
+#            logger.debug(
+#                'decoded authorization credentials: %s',
+#                authorization_credentials,
+#            )
+#
+#            pieces = authorization_credentials.split(
+#                sep=':',
+#            )
+#
+#            username = pieces[0]
+#            password = pieces[1]
+#
+#            logger.debug(
+#                'username: %s',
+#                username,
+#            )
+#
+#            logger.debug(
+#                'password: %s',
+#                password,
+#            )
+#
+#            token = password
+#        elif authorization_type == 'Token':
+#            token = authorization_credentials
+#        else:
+#            response = {
+#                'statusCode': 401,
+#                'headers': {
+#                    'Content-Type': 'application/vnd.git-lfs+json',
+#                    'LFS-Authenticate': 'Basic realm="Git LFS", charset="UTF-8"',
+#                },
+#                'body': {
+#                    'message': 'missing authentication',
+#                    # FIXME
+#                    'documentation_url': 'https://mo.in/',
+#                },
+#                'isBase64Encoded': False,
+#            }
 
         transport = gql.transport.requests.RequestsHTTPTransport(
             headers={
@@ -132,7 +132,11 @@ def process_request(body, github_owner, github_repo, handler, headers):
             query,
         )
 
-        print(f"result = {result!s}")
+        logger.debug(
+            'GitHub query result: %s',
+            result,
+        )
+
         viewer_permission = result['repository']['viewerPermission']
         viewer_permission = glawit.RepositoryAccess.READONLY
 
@@ -157,8 +161,8 @@ def process_request(body, github_owner, github_repo, handler, headers):
                 )
 
             config = {
-                'github_owner': 'kalrish',
-                'github_repo': 'music',
+                'github_owner': github_owner,
+                'github_repo': github_repo,
                 'store_bucket': 'git-lfs.lalala.eu',
             }
             response = handler(

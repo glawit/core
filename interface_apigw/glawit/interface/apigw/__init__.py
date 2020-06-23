@@ -7,6 +7,12 @@ import glawit.core.main
 logger = logging.getLogger(
 )
 
+# Top logger object based on whether everything should be logged
+top_logger_names = {
+    False: 'glawit',
+    True: None,
+}
+
 
 # Common entry point for Lambda functions invoked by API Gateway
 def entry_point(context, event, handler):
@@ -57,7 +63,15 @@ def entry_point(context, event, handler):
 
 
 def set_up_logging(level):
-    logger.setLevel(
+    log_everything = True
+
+    top_logger_name = top_logger_names[log_everything]
+
+    top_logger = logging.getLogger(
+        name=top_logger_name,
+    )
+
+    top_logger.setLevel(
         level,
     )
 
