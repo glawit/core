@@ -1,0 +1,3 @@
+ - Use Jinja2 for GraphQL query
+ - Implement package data loader?
+ - Switch to [`werkzeug.wrappers.Response`](https://werkzeug.palletsprojects.com/en/1.0.x/wrappers/#werkzeug.wrappers.Response)
