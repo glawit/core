@@ -1,3 +1,4 @@
+import base64
 import logging
 import os
 
@@ -52,12 +53,12 @@ def entry_point(context, event, handler):
         headers=headers,
     )
 
-    return
+    return return_value
 
 
 def set_up_logging(level):
     logger.setLevel(
-        logging_level,
+        level,
     )
 
 
