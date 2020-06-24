@@ -4,10 +4,6 @@ import jinja2
 
 data_package = 'glawit.core.data.jinja2'
 
-loader = jinja2.FunctionLoader(
-    load_template,
-)
-
 
 def load_template(name):
     exists = importlib.resources.is_resource(
@@ -24,3 +20,8 @@ def load_template(name):
     )
 
     return content
+
+
+loader = jinja2.FunctionLoader(
+    load_template,
+)
