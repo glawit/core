@@ -13,7 +13,7 @@ s3 = boto3.client(
 )
 
 
-def post(config, data, viewer_permission):
+def post(config, data, viewer_access):
     bucket = config['store_bucket']
 
     oid = data['oid']

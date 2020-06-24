@@ -13,7 +13,14 @@ logger = logging.getLogger(
 )
 
 
-def process_request(body, github_owner, github_repo, handler, headers):
+def process_request(config, handler, request):
+    github_owner = config['github_owner']
+    github_repo = config['github_repo']
+    store_bucket = config['store_bucket']
+
+    body = request['body']
+    headers = request['headers']
+
     try:
         authorization_header_value = headers['authorization']
     except KeyError:
@@ -195,13 +202,13 @@ def process_request(body, github_owner, github_repo, handler, headers):
                     config = {
                         'github_owner': github_owner,
                         'github_repo': github_repo,
-                        'store_bucket': 'git-lfs.lalala.eu',
+                        'store_bucket': store_bucket,
                     }
 
                     response = handler(
                         config=config,
                         data=data,
-                        viewer_permission=viewer_permission,
+                        viewer_access=viewer_access,
                     )
                 else:
                     response = {

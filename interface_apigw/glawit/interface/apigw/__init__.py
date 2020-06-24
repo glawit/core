@@ -51,12 +51,22 @@ def entry_point(context, event, handler):
             validate=True,
         )
 
+    config = {
+        'github_owner': github_owner,
+        'github_repo': github_repo,
+        'storage_class': stage_variables['storage_class'],
+        'store_bucket': stage_variables['store_bucket'],
+    }
+
+    request = {
+        'body': body,
+        'headers': headers,
+    }
+
     return_value = glawit.core.main.process_request(
-        body=body,
-        github_owner=github_owner,
-        github_repo=github_repo,
+        config=config,
         handler=handler,
-        headers=headers,
+        request=request,
     )
 
     return return_value
