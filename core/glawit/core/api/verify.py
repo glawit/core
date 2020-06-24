@@ -1,72 +1,48 @@
 import logging
 
-import boto3
-import botocore
-
 import glawit.core.access
+import glawit.core.s3
 
 logger = logging.getLogger(
 )
 
-s3 = boto3.client(
-    's3',
-)
 
+def post(config, data, session, viewer_access):
+    status_code = None
 
-def post(config, data, viewer_access):
     bucket = config['store_bucket']
 
     oid = data['oid']
-    expected_size = data['size']
+    expected_object_size = data['size']
 
     object_key = oid
 
-    try:
-        s3_response = s3.head_object(
-            Bucket=bucket,
-            Key=object_key,
-        )
-    #except s3.exceptions.NoSuchKey:
-    except botocore.exceptions.ClientError as e:
-        if e.response['Error']['Code'] == '404':
-            logger.warning(
-                'bucket %s does not have object with key %s',
-                bucket,
-                object_key,
-            )
+    object_check_result = glawit.core.s3.check_object(
+        bucket=bucket,
+        key=object_key,
+        session=session,
+    )
 
-            response = {
-                'statusCode': 404,
-            }
-        else:
-            raise e
+    if object_check_result == -1:
+        # bucket does not contain object with that key
+
+        status_code = 404
     else:
-        s3_object_size = s3_response['ContentLength']
+        object_size = object_check_result
 
-        logger.debug(
-            'bucket %s has object with key %s and size %i',
-            bucket,
-            object_key,
-            s3_object_size,
-        )
-
-        if expected_size == s3_object_size:
+        if expected_object_size == object_size:
             logger.debug(
                 'size matches',
             )
 
-            response = {
-                'statusCode': 200,
-            }
+            status_code = 200
         else:
             logger.error(
                 'size does not match; client expected %i',
-                expected_size,
+                expected_object_size,
             )
 
-            response = {
-                'statusCode': 409,
-            }
+            status_code = 409
 
     if False:
         if viewer_permission >= glawit.core.access.RepositoryAccess.READONLY:
@@ -84,5 +60,9 @@ def post(config, data, viewer_access):
                 },
                 'isBase64Encoded': False,
             }
+
+    response = {
+        'statusCode': status_code,
+    }
 
     return response

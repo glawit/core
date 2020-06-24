@@ -2,6 +2,8 @@ import base64
 import logging
 import os
 
+import boto3
+
 import glawit.core.main
 
 logger = logging.getLogger(
@@ -70,10 +72,14 @@ def entry_point(context, event, handler):
         'headers': headers,
     }
 
+    session = boto3.session.Session(
+    )
+
     return_value = glawit.core.main.process_request(
         config=config,
         handler=handler,
         request=request,
+        session=session,
     )
 
     return return_value

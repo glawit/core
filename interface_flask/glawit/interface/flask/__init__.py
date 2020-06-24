@@ -1,5 +1,6 @@
 import logging
 
+import boto3
 import flask
 import werkzeug.datastructures
 
@@ -22,6 +23,8 @@ app.config['github_owner'] = 'kalrish'
 app.config['github_repo'] = 'music'
 app.config['store_bucket'] = 'git-lfs-apis-playground-store-bucket-1p2f8sde4jq8g'
 app.config['storage_class'] = 'STANDARD'
+session = boto3.session.Session(
+)
 
 config = {
     'AWS': {
@@ -97,7 +100,7 @@ def locks_id_unlock(id):
 )
 def objects_batch():
     request = {
-        'body': flask.request.json,
+        'data': flask.request.json,
         'headers': flask.request.headers,
     }
 
@@ -105,6 +108,7 @@ def objects_batch():
         config=config,
         handler=glawit.core.api.objects.batch.post,
         request=request,
+        session=session,
     )
 
     resp = flask.Response(
@@ -132,7 +136,7 @@ def objects_batch():
 )
 def verify():
     request = {
-        'body': flask.request.json,
+        'data': flask.request.json,
         'headers': flask.request.headers,
     }
 
@@ -140,6 +144,7 @@ def verify():
         config=config,
         handler=glawit.core.api.verify.post,
         request=request,
+        session=session,
     )
 
     resp = flask.Response(

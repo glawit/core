@@ -13,12 +13,11 @@ logger = logging.getLogger(
 )
 
 
-def process_request(config, handler, request):
+def process_request(config, handler, request, session):
     github_owner = config['GitHub']['owner']
     github_repo = config['GitHub']['repo']
     store_bucket = config['large_file_store']['bucket_name']
 
-    body = request['body']
     headers = request['headers']
 
     try:
@@ -180,13 +179,7 @@ def process_request(config, handler, request):
                 enough = viewer_access >= minimum_access
 
                 if enough:
-                    body_type = type(
-                        body,
-                    )
-
-                    if body_type == dict:
-                        data = body
-                    else:
+                    if 'data' not in request:
                         # FIXME
                         #assert header_says_body_is_json
 
@@ -199,9 +192,13 @@ def process_request(config, handler, request):
                             body,
                         )
 
+                        request['data'] = data
+
                     response = handler(
                         config=config,
                         data=data,
+                        #request=request,
+                        session=session,
                         viewer_access=viewer_access,
                     )
                 else:
