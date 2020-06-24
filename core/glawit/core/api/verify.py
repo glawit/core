@@ -3,7 +3,7 @@ import logging
 import boto3
 import botocore
 
-import glawit
+import glawit.core.access
 
 logger = logging.getLogger(
 )
@@ -69,7 +69,7 @@ def post(config, data, viewer_access):
             }
 
     if False:
-        if viewer_permission >= glawit.RepositoryAccess.READONLY:
+        if viewer_permission >= glawit.core.access.RepositoryAccess.READONLY:
             assert True
         else:
             response = {

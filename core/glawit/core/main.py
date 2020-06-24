@@ -14,9 +14,9 @@ logger = logging.getLogger(
 
 
 def process_request(config, handler, request):
-    github_owner = config['github_owner']
-    github_repo = config['github_repo']
-    store_bucket = config['store_bucket']
+    github_owner = config['GitHub']['owner']
+    github_repo = config['GitHub']['repo']
+    store_bucket = config['large_file_store']['bucket_name']
 
     body = request['body']
     headers = request['headers']
@@ -198,12 +198,6 @@ def process_request(config, handler, request):
                         data = json.loads(
                             body,
                         )
-
-                    config = {
-                        'github_owner': github_owner,
-                        'github_repo': github_repo,
-                        'store_bucket': store_bucket,
-                    }
 
                     response = handler(
                         config=config,

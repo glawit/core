@@ -17,10 +17,25 @@ app = flask.Flask(
     __name__,
 )
 # FIXME
+app.config['aws_region'] = 'eu-central-1'
 app.config['github_owner'] = 'kalrish'
 app.config['github_repo'] = 'music'
 app.config['store_bucket'] = 'git-lfs-apis-playground-store-bucket-1p2f8sde4jq8g'
 app.config['storage_class'] = 'STANDARD'
+
+config = {
+    'AWS': {
+        'region': app.config['aws_region'],
+    },
+    'GitHub': {
+        'owner': app.config['github_owner'],
+        'repo': app.config['github_repo'],
+    },
+    'large_file_store': {
+        'bucket_name': app.config['store_bucket'],
+        'storage_class': app.config['storage_class'],
+    },
+}
 
 
 @app.route(
@@ -81,8 +96,29 @@ def locks_id_unlock(id):
     ],
 )
 def objects_batch():
-    response = glawit.api.objects.batch.post(
+    request = {
+        'body': flask.request.json,
+        'headers': flask.request.headers,
+    }
+
+    response = glawit.core.main.process_request(
+        config=config,
+        handler=glawit.core.api.objects.batch.post,
+        request=request,
     )
+
+    resp = flask.Response(
+        headers=werkzeug.datastructures.Headers(
+            response.get(
+                'headers',
+                dict(
+                ),
+            ),
+        ),
+        status=response['statusCode'],
+    )
+
+    return resp
 
     return response
 
@@ -95,13 +131,6 @@ def objects_batch():
     ],
 )
 def verify():
-    config = {
-        'github_owner': app.config['github_owner'],
-        'github_repo': app.config['github_repo'],
-        'storage_class': app.config['storage_class'],
-        'store_bucket': app.config['store_bucket'],
-    }
-
     request = {
         'body': flask.request.json,
         'headers': flask.request.headers,

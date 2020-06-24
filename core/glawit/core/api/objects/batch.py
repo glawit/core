@@ -1,7 +1,8 @@
 import logging
-import os
 
 import boto3
+
+import glawit.core.access
 
 logger = logging.getLogger(
 )
@@ -27,12 +28,15 @@ s3 = boto3.client(
 )
 
 
-def post(event, context):
+def post(config, data, viewer_access):
+    # FIXME
+    repository_public = False
+
     operation = data['operation']
 
-    bucket = os.environ['Bucket']
-    region = os.environ['AWS_REGION']
-    storage_class = os.environ['StorageClass']
+    aws_region = config['AWS']['region']
+    bucket = config['large_file_store']['bucket_name']
+    storage_class = config['large_file_store']['storage_class']
 
     s3_method = s3_methods[operation]
     http_method = http_methods[operation]
@@ -54,6 +58,8 @@ def post(event, context):
 
         object_key = oid
 
+        # FIXME
+        """
         object_exists = dfd(
             Bucket=bucket,
             Key=object_key,
@@ -64,13 +70,14 @@ def post(event, context):
             Key=object_key,
         )
         ###
+        """
 
         if operation == 'download':
             if object_exists:
                 response_object['authenticated'] = True
 
                 if repository_public:
-                    href = f'https://{bucket}.s3.dualstack.{region}.amazonaws.com/{object_key}'
+                    href = f'https://{bucket}.s3.dualstack.{aws_region}.amazonaws.com/{object_key}'
 
                     expires_in = 2147483647
                 else:

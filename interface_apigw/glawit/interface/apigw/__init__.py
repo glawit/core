@@ -52,10 +52,17 @@ def entry_point(context, event, handler):
         )
 
     config = {
-        'github_owner': github_owner,
-        'github_repo': github_repo,
-        'storage_class': stage_variables['storage_class'],
-        'store_bucket': stage_variables['store_bucket'],
+        'AWS': {
+            'region': os.environ['AWS_REGION'],
+        },
+        'GitHub': {
+            'owner': github_owner,
+            'repo': github_repo,
+        },
+        'large_file_store': {
+            'bucket_name': stage_variables['store_bucket'],
+            'storage_class': stage_variables['storage_class'],
+        },
     }
 
     request = {
