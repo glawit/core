@@ -3,12 +3,12 @@ import logging
 import flask
 import werkzeug.datastructures
 
-import glawit.api.locks
-import glawit.api.locks.id.unlock
-import glawit.api.locks.verify
-import glawit.api.objects.batch
-import glawit.api.verify
-import glawit.main
+import glawit.core.api.locks
+import glawit.core.api.locks.id.unlock
+import glawit.core.api.locks.verify
+import glawit.core.api.objects.batch
+import glawit.core.api.verify
+import glawit.core.main
 
 logger = logging.getLogger(
 )
@@ -16,8 +16,11 @@ logger = logging.getLogger(
 app = flask.Flask(
     __name__,
 )
+# FIXME
 app.config['github_owner'] = 'kalrish'
 app.config['github_repo'] = 'music'
+app.config['store_bucket'] = 'git-lfs-apis-playground-store-bucket-1p2f8sde4jq8g'
+app.config['storage_class'] = 'STANDARD'
 
 
 @app.route(
@@ -92,17 +95,31 @@ def objects_batch():
     ],
 )
 def verify():
-    response = glawit.main.galwit(
-        body=flask.request.json,
-        github_owner=app.config['github_owner'],
-        github_repo=app.config['github_repo'],
-        handler=glawit.api.verify.post,
-        headers=flask.request.headers,
+    config = {
+        'github_owner': app.config['github_owner'],
+        'github_repo': app.config['github_repo'],
+        'storage_class': app.config['storage_class'],
+        'store_bucket': app.config['store_bucket'],
+    }
+
+    request = {
+        'body': flask.request.json,
+        'headers': flask.request.headers,
+    }
+
+    response = glawit.core.main.process_request(
+        config=config,
+        handler=glawit.core.api.verify.post,
+        request=request,
     )
 
     resp = flask.Response(
         headers=werkzeug.datastructures.Headers(
-            response['headers'],
+            response.get(
+                'headers',
+                dict(
+                ),
+            ),
         ),
         status=response['statusCode'],
     )

@@ -1,5 +1,5 @@
 cd glawit
-export FLASK_APP=flask.py
+export FLASK_APP=glawit.interface.flask
 export AWS_PROFILE=personal AWS_DEFAULT_REGION=eu-central-1
 flask run
 

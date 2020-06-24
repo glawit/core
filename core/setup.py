@@ -14,8 +14,8 @@ setuptools.setup(
     ],
     name='glawit_core',
     package_data={
-        'glawit': [
-            'data/*',
+        'glawit.core.data': [
+            'jinja2/*',
         ],
     },
     packages=packages,
