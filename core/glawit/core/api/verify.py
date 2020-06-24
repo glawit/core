@@ -10,7 +10,7 @@ logger = logging.getLogger(
 def post(config, data, session, viewer_access):
     status_code = None
 
-    bucket = config['store_bucket']
+    store_bucket = config['large_file_store']['bucket_name']
 
     oid = data['oid']
     expected_object_size = data['size']
@@ -18,7 +18,7 @@ def post(config, data, session, viewer_access):
     object_key = oid
 
     object_check_result = glawit.core.s3.check_object(
-        bucket=bucket,
+        bucket=store_bucket,
         key=object_key,
         session=session,
     )

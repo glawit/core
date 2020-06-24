@@ -179,7 +179,9 @@ def process_request(config, handler, request, session):
                 enough = viewer_access >= minimum_access
 
                 if enough:
-                    if 'data' not in request:
+                    try:
+                        data = request['data']
+                    except KeyError:
                         # FIXME
                         #assert header_says_body_is_json
 

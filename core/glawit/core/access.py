@@ -2,11 +2,11 @@ import enum
 
 
 class RepositoryAccess(enum.Enum):
-    ADMIN = 5
-    MAINTAIN = 4
     READ = 1
     TRIAGE = 2
     WRITE = 3
+    MAINTAIN = 4
+    ADMIN = 5
 
     def __ge__(self, other):
         assert self.__class__ is other.__class__

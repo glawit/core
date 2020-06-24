@@ -98,7 +98,7 @@ def post(config, data, session, viewer_access):
 
         object_exists = object_check_result != -1
 
-        if operation == 'download':
+        if request_operation == 'download':
             if object_exists:
                 object_size = object_check_result
 
@@ -149,7 +149,7 @@ def post(config, data, session, viewer_access):
                     'message': 'Object does not exist',
                 }
 
-        elif operation == 'upload' and not object_exists:
+        elif request_operation == 'upload' and not object_exists:
             response_object['authenticated'] = True
 
             action_upload = dict(
@@ -193,12 +193,12 @@ def post(config, data, session, viewer_access):
     }
 
     response = {
-        'statusCode': 200,
+        'body': response_data,
         'headers': {
             'Content-Type': 'application/vnd.git-lfs+json',
         },
-        'body': response_data,
         'isBase64Encoded': False,
+        'statusCode': 200,
     }
 
     return response

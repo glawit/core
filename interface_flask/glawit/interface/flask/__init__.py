@@ -18,6 +18,7 @@ app = flask.Flask(
     __name__,
 )
 # FIXME
+app.config['api_endpoint'] = 'http://127.0.0.1:5000'
 app.config['aws_region'] = 'eu-central-1'
 app.config['github_owner'] = 'kalrish'
 app.config['github_repo'] = 'music'
@@ -27,6 +28,9 @@ session = boto3.session.Session(
 )
 
 config = {
+    'API': {
+        'endpoint': app.config['api_endpoint'],
+    },
     'AWS': {
         'region': app.config['aws_region'],
     },
@@ -111,20 +115,22 @@ def objects_batch():
         session=session,
     )
 
-    resp = flask.Response(
-        headers=werkzeug.datastructures.Headers(
-            response.get(
-                'headers',
-                dict(
-                ),
-            ),
-        ),
-        status=response['statusCode'],
+#    resp = flask.Response(
+#        headers=werkzeug.datastructures.Headers(
+#            response.get(
+#                'headers',
+#                dict(
+#                ),
+#            ),
+#        ),
+#        status=response['statusCode'],
+#    )
+
+    return (
+        response['body'],
+        response['statusCode'],
+        response['headers'],
     )
-
-    return resp
-
-    return response
 
 
 @app.route(
