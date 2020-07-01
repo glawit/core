@@ -23,8 +23,13 @@ http_methods = {
 }
 
 
-def post(config, data, session, viewer_access):
-    s3 = session.client(
+def post(boto3_session, config, github, request):
+    viewer_access = github['viewer_access']
+
+    data = request['data']
+
+
+    s3 = boto3_session.client(
         's3',
     )
 
@@ -93,7 +98,7 @@ def post(config, data, session, viewer_access):
         object_check_result = glawit.core.s3.check_object(
             bucket=store_bucket,
             key=object_key,
-            session=session,
+            session=boto3_session,
         )
 
         object_exists = object_check_result != -1
@@ -171,12 +176,22 @@ def post(config, data, session, viewer_access):
             action_verify = dict(
             )
 
+#            action_verify['href'] = s3.generate_presigned_url(
+#                ClientMethod='head_object',
+#                HttpMethod='POST',
+#                Params={
+#                    'Bucket': store_bucket,
+#                    'Key': object_key,
+#                },
+#                ExpiresIn=7200,
+#            )
             action_verify['href'] = f'{api_endpoint}/verify'
             # FIXME
-            action_verify['header'] = {
-                #'Authorization': f'Bearer {token}',
-            }
+            #action_verify['header'] = {
+            #    #'Authorization': f'Bearer {token}',
+            #}
             action_verify['expires_in'] = 2147483647
+#            action_verify['expires_in'] = 7200
 
             response_object['actions'] = {
                 'upload': action_upload,

@@ -22,6 +22,7 @@ app.config['api_endpoint'] = 'http://127.0.0.1:5000'
 app.config['aws_region'] = 'eu-central-1'
 app.config['github_owner'] = 'kalrish'
 app.config['github_repo'] = 'music'
+app.config['locktable'] = 'git-lfs-apis-playground-locktable-Table-10NKA4N7XKHUI'
 app.config['store_bucket'] = 'git-lfs-apis-playground-store-bucket-1p2f8sde4jq8g'
 app.config['storage_class'] = 'STANDARD'
 session = boto3.session.Session(
@@ -42,6 +43,7 @@ config = {
         'bucket_name': app.config['store_bucket'],
         'storage_class': app.config['storage_class'],
     },
+    'locktable': app.config['locktable'],
 }
 
 
@@ -54,15 +56,38 @@ config = {
 )
 def locks():
     if flask.request.method == 'GET':
-        response = glawit.api.locks.get(
+        request = {
+            'data': flask.request.json,
+            'headers': flask.request.headers,
+            'urlparams': flask.request.args,
+        }
+
+        response = glawit.core.main.process_request(
+            config=config,
+            handler=glawit.core.api.locks.get,
+            request=request,
+            session=session,
         )
     else:
         assert flask.request.method == 'POST'
 
-        response = glawit.api.locks.post(
+        request = {
+            'data': flask.request.json,
+            'headers': flask.request.headers,
+        }
+
+        response = glawit.core.main.process_request(
+            config=config,
+            handler=glawit.core.api.locks.post,
+            request=request,
+            session=session,
         )
 
-    return response
+    return (
+        response['body'],
+        response['statusCode'],
+        response['headers'],
+    )
 
 
 @app.route(

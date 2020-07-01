@@ -196,12 +196,18 @@ def process_request(config, handler, request, session):
 
                         request['data'] = data
 
+                    github = {
+                        'id': result['viewer']['id'],
+                        'name': result['viewer']['name'],
+                        'username': result['viewer']['login'],
+                        'viewer_access': viewer_access,
+                    }
+
                     response = handler(
+                        boto3_session=session,
                         config=config,
-                        data=data,
-                        #request=request,
-                        session=session,
-                        viewer_access=viewer_access,
+                        github=github,
+                        request=request,
                     )
                 else:
                     response = {

@@ -1,45 +1,47 @@
-import json
 import logging
 
-import boto3
+import glawit.core.access
 
 logger = logging.getLogger(
 )
 
 
-def post(event, context):
-    try:
-        ref = request_data['ref']
-        refname = ref['name']
-    except KeyError:
-        pass
+def post(boto3_session, config, github, request):
+    viewer_access = github['viewer_access']
 
-    limit = request_data.get(
-        'limit',
-        100,
-    )
+    if viewer_access >= glawit.core.access.RepositoryAccess.WRITE:
+        try:
+            ref = request_data['ref']
+            refname = ref['name']
+        except KeyError:
+            pass
 
-    response_data = {
-        'ours': list(
-        ),
-        'theirs': list(
-        ),
-    }
+        limit = request_data.get(
+            'limit',
+            100,
+        )
 
-    if True:
-        response_data['next_cursor'] = next_cursor
+        response_data = {
+            'ours': list(
+            ),
+            'theirs': list(
+            ),
+        }
 
-    response_body = json.dumps(
-        response_data,
-    )
+        if True:
+            response_data['next_cursor'] = next_cursor
+    else:
+        status_code = 403
+        response_data = {
+            'message': 'You are not allowed to push to this repository',
+        }
 
     response = {
-        'statusCode': 200,
+        'body': response_data,
         'headers': {
             'Content-Type': 'application/vnd.git-lfs+json',
         },
-        'body': response_body,
-        'isBase64Encoded': False,
+        'statusCode': status_code,
     }
 
     return response

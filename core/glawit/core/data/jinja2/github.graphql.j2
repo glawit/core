@@ -1,14 +1,19 @@
-query {
+query
+{
 
-	viewer {
+	viewer
+	{
+		id
 		login
 		name
 	}
 
-	repository(
+	repository
+	(
 		owner: "{{ owner }}",
 		name: "{{ repo }}",
-	) {
+	)
+	{
 		viewerPermission
 	}
 

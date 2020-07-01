@@ -7,10 +7,14 @@ logger = logging.getLogger(
 )
 
 
-def post(config, data, session, viewer_access):
+def post(boto3_session, config, github, request):
     status_code = None
 
     store_bucket = config['large_file_store']['bucket_name']
+
+    viewer_access = github['viewer_access']
+
+    data = request['data']
 
     oid = data['oid']
     expected_object_size = data['size']
@@ -20,7 +24,7 @@ def post(config, data, session, viewer_access):
     object_check_result = glawit.core.s3.check_object(
         bucket=store_bucket,
         key=object_key,
-        session=session,
+        session=boto3_session,
     )
 
     if object_check_result == -1:
