@@ -169,14 +169,14 @@ def post(config, request, session):
                     'Key': object_key,
                     'StorageClass': storage_class,
                 },
-                ExpiresIn=50,
+                ExpiresIn=3600,
             )
 
             action_upload['header'] = {
                 'x-amz-storage-class': storage_class,
             }
 
-            action_upload['expires_in'] = 50
+            action_upload['expires_in'] = 3600
 
             action_verify = dict(
             )
@@ -217,7 +217,6 @@ def post(config, request, session):
         'headers': {
             'Content-Type': 'application/vnd.git-lfs+json',
         },
-        'isBase64Encoded': False,
         'statusCode': 200,
     }
 
