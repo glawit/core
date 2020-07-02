@@ -223,12 +223,14 @@ def post(config, request, session):
             status_code = 201
 
             response_data = {
-                'id': lock['path'],
-                'locked_at': lock['creation_time'],
-                'owner': {
-                    'name': owner_name,
+                'lock': {
+                    'id': lock['path'],
+                    'locked_at': lock['creation_time'],
+                    'owner': {
+                        'name': owner_name,
+                    },
+                    'path': request_path,
                 },
-                'path': request_path,
             }
         else:
             status_code = 409
