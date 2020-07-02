@@ -3,17 +3,20 @@ import json
 import logging
 
 import glawit.core.access
+import glawit.core.github
+import glawit.core.json64
 import glawit.core.locks
 
 logger = logging.getLogger(
 )
 
 
-def get(boto3_session, config, github, request):
+def get(config, request, session):
     locktable = config['locktable']
 
-    data = request['data']
     urlparams = request['urlparams']
+
+    boto3_session = session['boto3']['session']
 
     scan_arguments = {
         'ReturnConsumedCapacity': 'NONE',
@@ -24,10 +27,13 @@ def get(boto3_session, config, github, request):
     try:
         limit_str = urlparams['limit']
     except KeyError:
-        limit = 100
+        limit = config['API']['max_items']
     else:
-        limit = int(
-            limit_str,
+        limit = max(
+            1,
+            int(
+                limit_str,
+            ),
         )
 
     scan_arguments['Limit'] = limit
@@ -37,16 +43,9 @@ def get(boto3_session, config, github, request):
     except KeyError:
         pass
     else:
-        cursor_bytes = base64.urlsafe_b64decode(
+        scan_arguments['ExclusiveStartKey'] = glawit.core.json64.decode(
             cursor,
         )
-        cursor_json = cursor_bytes.decode(
-            encoding='utf-8',
-        )
-        last_evaluated_key = json.loads(
-            cursor_json,
-        )
-        scan_arguments['ExclusiveStartKey'] = last_evaluated_key
 
     filter_expressions = list(
     )
@@ -127,6 +126,18 @@ def get(boto3_session, config, github, request):
 
     status_code = 200
 
+    items = response['Items']
+
+    github_ids = [
+        item['github_id']['S']
+        for item in items
+    ]
+
+    github_users = glawit.core.github.fetch_users_info(
+        graphql_client=session['GitHub']['GraphQL'],
+        ids=github_ids,
+    )
+
     response_data = {
         'locks': [
             {
@@ -134,10 +145,10 @@ def get(boto3_session, config, github, request):
                 'path': item['path']['S'],
                 'locked_at': item['creation_time']['S'],
                 'owner': {
-                    'name': f'{ item["github_username"]["S"] } ({ item["github_name"]["S"]})',
+                    'name': f'{ github_users[item["github_id"]["S"]]["login"] } ({ github_users[item["github_id"]["S"]]["name"]})',
                 },
             }
-            for item in response['Items']
+            for item in items
         ],
     }
 
@@ -148,19 +159,9 @@ def get(boto3_session, config, github, request):
             'no more results',
         )
     else:
-        next_cursor_json = json.dumps(
+        response_data['next_cursor'] = glawit.core.json64.encode(
             last_evaluated_key,
         )
-        next_cursor_bytes = next_cursor_json.encode(
-            encoding='utf-8',
-        )
-        next_cursor_bytes_base64 = base64.urlsafe_b64encode(
-            next_cursor_bytes,
-        )
-        next_cursor = next_cursor_bytes_base64.decode(
-            encoding='utf-8',
-        )
-        response_data['next_cursor'] = next_cursor
 
     response = {
         'body': response_data,
@@ -173,8 +174,9 @@ def get(boto3_session, config, github, request):
     return response
 
 
-def post(boto3_session, config, github, request):
-    viewer_access = github['viewer_access']
+def post(config, request, session):
+    boto3_session = session['boto3']['session']
+    viewer_access = session['GitHub']['viewer_access']
 
     if viewer_access >= glawit.core.access.RepositoryAccess.WRITE:
         locktable = config['locktable']
@@ -196,16 +198,22 @@ def post(boto3_session, config, github, request):
         )
         updated, lock = glawit.core.locks.try_lock(
             boto3_session=boto3_session,
-            github_id=github['id'],
-            github_name=github['name'],
-            github_username=github['username'],
+            github_id=session['GitHub']['id'],
             path=request_path,
             ref=ref,
             table=config['locktable'],
         )
 
-        lock_github_name = lock['github_name']
-        lock_github_username = lock['github_username']
+        lock_github_id = lock['github_id']
+
+        github_user = glawit.core.github.fetch_user_info(
+            graphql_client=session['GitHub']['GraphQL'],
+            id=lock_github_id,
+        )
+
+        lock_github_username = github_user['login']
+        lock_github_name = github_user['name']
+
         owner_name = f'{ lock_github_username } ({ lock_github_name })'
 
         if updated:

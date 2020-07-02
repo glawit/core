@@ -7,12 +7,13 @@ logger = logging.getLogger(
 )
 
 
-def post(boto3_session, config, github, request):
+def post(config, request, session):
     status_code = None
 
-    store_bucket = config['large_file_store']['bucket_name']
+    boto3_session = session['boto3']['session']
+    viewer_access = session['GitHub']['viewer_access']
 
-    viewer_access = github['viewer_access']
+    store_bucket = config['large_file_store']['bucket_name']
 
     data = request['data']
 

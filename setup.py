@@ -10,12 +10,11 @@ packages = setuptools.find_namespace_packages(
 setuptools.setup(
     install_requires=[
         'gql == 2.0.0',
-        'Jinja2 == 2.11.2',
     ],
     name='glawit_core',
     package_data={
-        'glawit.core.data': [
-            'jinja2/*',
+        'glawit.core.data.graphql': [
+            '*.graphql',
         ],
     },
     packages=packages,

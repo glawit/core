@@ -1,13 +1,11 @@
-import base64
+import importlib.resources
 import json
 import logging
 
 import gql
 import gql.transport.requests
-import jinja2
 
 import glawit.core.access
-import glawit.core.jinja2
 
 logger = logging.getLogger(
 )
@@ -37,7 +35,6 @@ def process_request(config, handler, request, session):
                 'message': 'Pass your GitHub user as username and a personal token as password',
                 'documentation_url': 'https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line',
             },
-            'isBase64Encoded': False,
         }
     else:
         logger.debug(
@@ -111,7 +108,6 @@ def process_request(config, handler, request, session):
 #                    # FIXME
 #                    'documentation_url': 'https://mo.in/',
 #                },
-#                'isBase64Encoded': False,
 #            }
 
         transport = gql.transport.requests.RequestsHTTPTransport(
@@ -126,26 +122,25 @@ def process_request(config, handler, request, session):
             transport=transport,
         )
 
-        jinja2_environment = jinja2.Environment(
-            loader=glawit.core.jinja2.loader,
-        )
-
-        template = jinja2_environment.get_template(
-            'github.graphql.j2',
-        )
-
-        graphql_query_code = template.render(
-            owner=github_owner,
-            repo=github_repo,
+        graphql_query_code = importlib.resources.read_text(
+            encoding='utf-8',
+            package='glawit.core.data.graphql',
+            resource='main.graphql',
         )
 
         graphql_query = gql.gql(
             graphql_query_code,
         )
 
+        graphql_query_variables = {
+            'owner': github_owner,
+            'repo': github_repo,
+        }
+
         try:
             result = client.execute(
-                graphql_query,
+                document=graphql_query,
+                variable_values=graphql_query_variables,
             )
         except Exception:
             response = {
@@ -158,7 +153,6 @@ def process_request(config, handler, request, session):
                     # FIXME
                     'documentation_url': 'https://mo.in/',
                 },
-                'isBase64Encoded': False,
             }
         else:
             logger.debug(
@@ -196,18 +190,16 @@ def process_request(config, handler, request, session):
 
                         request['data'] = data
 
-                    github = {
+                    session['GitHub'] = {
+                        'GraphQL': client,
                         'id': result['viewer']['id'],
-                        'name': result['viewer']['name'],
-                        'username': result['viewer']['login'],
                         'viewer_access': viewer_access,
                     }
 
                     response = handler(
-                        boto3_session=session,
                         config=config,
-                        github=github,
                         request=request,
+                        session=session,
                     )
                 else:
                     response = {
@@ -219,7 +211,6 @@ def process_request(config, handler, request, session):
                             'message': 'Your permission level for this repository is not enough.',
                             'documentation_url': 'https://help.github.com/en/github/getting-started-with-github/access-permissions-on-github',
                         },
-                        'isBase64Encoded': False,
                     }
             else:
                 response = {
@@ -231,7 +222,6 @@ def process_request(config, handler, request, session):
                         'message': 'It seems the GitHub repository is private and the GitHub API token provided lacks access to private repositories. Grant it the corresponding scope and try again.',
                         'documentation_url': 'https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/#available-scopes',
                     },
-                    'isBase64Encoded': False,
                 }
 
     try:
