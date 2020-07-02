@@ -172,6 +172,10 @@ def post(config, request, session):
                 ExpiresIn=50,
             )
 
+            action_upload['header'] = {
+                'x-amz-storage-class': storage_class,
+            }
+
             action_upload['expires_in'] = 50
 
             action_verify = dict(
