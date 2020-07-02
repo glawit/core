@@ -1,0 +1,20 @@
+query
+(
+	$ids: [ID!]!,
+)
+{
+
+	nodes
+	(
+		ids: $ids,
+	)
+	{
+		id
+		... on User
+		{
+			login
+			name
+		}
+	}
+
+}

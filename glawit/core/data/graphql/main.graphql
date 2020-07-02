@@ -1,0 +1,22 @@
+query
+(
+	$owner: String!,
+	$repo: String!,
+)
+{
+
+	viewer
+	{
+		id
+	}
+
+	repository
+	(
+		owner: $owner,
+		name: $repo,
+	)
+	{
+		viewerPermission
+	}
+
+}

@@ -23,8 +23,9 @@ http_methods = {
 }
 
 
-def post(boto3_session, config, github, request):
-    viewer_access = github['viewer_access']
+def post(config, request, session):
+    boto3_session = session['boto3']['session']
+    viewer_access = session['GitHub']['viewer_access']
 
     data = request['data']
 

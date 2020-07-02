@@ -7,10 +7,7 @@ logger = logging.getLogger(
 )
 
 
-def try_lock(boto3_session, github_id, github_name, github_username, path, ref, table):
-    #if not ref:
-    #    ref = '-'
-
+def try_lock(boto3_session, github_id, path, ref, table):
     now = datetime.datetime.now(
         tz=datetime.timezone.utc,
     )
@@ -23,10 +20,7 @@ def try_lock(boto3_session, github_id, github_name, github_username, path, ref, 
     attributes = {
         'creation_time': timestamp,
         'github_id': github_id,
-        'github_name': github_name,
-        'github_username': github_username,
         'path': path,
-        #'ref': ref,
     }
 
     if ref:
@@ -71,9 +65,6 @@ def try_lock(boto3_session, github_id, github_name, github_username, path, ref, 
                 Key={
                     'path': {
                         'S': path,
-                    },
-                    'ref': {
-                        'S': ref,
                     },
                 },
                 ReturnConsumedCapacity='NONE',
