@@ -3,6 +3,8 @@ import logging
 
 import botocore
 
+import glawit.core.dynamodb
+
 logger = logging.getLogger(
 )
 
@@ -30,7 +32,7 @@ def try_lock(boto3_session, github_id, path, ref, table):
     )
 
     item = {
-        key: value_to_value_dict(value)
+        key: glawit.core.dynamodb.value_to_attribute(value)
         for key, value in iterator
     }
 
@@ -71,11 +73,9 @@ def try_lock(boto3_session, github_id, path, ref, table):
                 TableName=table,
             )
 
-            attributes = response['Item']
-            lock = {
-                attribute_key: attribute_data['S']
-                for attribute_key, attribute_data in attributes.items()
-            }
+            lock = glawit.core.dynamodb.attributes_to_dict(
+                response['Item'],
+            )
         else:
             raise e
     else:
@@ -86,17 +86,3 @@ def try_lock(boto3_session, github_id, path, ref, table):
         lock_set,
         lock,
     )
-
-
-def value_to_value_dict(value):
-    value_type = type(
-        value,
-    )
-
-    assert value_type == str
-
-    value_dict = {
-        'S': value,
-    }
-
-    return value_dict

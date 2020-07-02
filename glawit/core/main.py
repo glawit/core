@@ -190,9 +190,16 @@ def process_request(config, handler, request, session):
 
                         request['data'] = data
 
+                    github_id = result['viewer']['id']
+
+                    logger.info(
+                        'GitHub ID: %s',
+                        github_id,
+                    )
+
                     session['GitHub'] = {
                         'GraphQL': client,
-                        'id': result['viewer']['id'],
+                        'id': github_id,
                         'viewer_access': viewer_access,
                     }
 

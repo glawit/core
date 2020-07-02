@@ -145,7 +145,7 @@ def get(config, request, session):
                 'path': item['path']['S'],
                 'locked_at': item['creation_time']['S'],
                 'owner': {
-                    'name': f'{ github_users[item["github_id"]["S"]]["login"] } ({ github_users[item["github_id"]["S"]]["name"]})',
+                    'name': f'{ github_users[item["github_id"]["S"]]["login"] } ({ github_users[item["github_id"]["S"]]["name"] })',
                 },
             }
             for item in items
@@ -175,18 +175,18 @@ def get(config, request, session):
 
 
 def post(config, request, session):
-    boto3_session = session['boto3']['session']
     viewer_access = session['GitHub']['viewer_access']
 
     if viewer_access >= glawit.core.access.RepositoryAccess.WRITE:
         locktable = config['locktable']
 
-        data = request['data']
+        request_data = request['data']
+        request_path = request_data['path']
 
-        request_path = data['path']
+        boto3_session = session['boto3']['session']
 
         try:
-            request_ref = data['ref']
+            request_ref = request_data['ref']
         except KeyError:
             ref = ''
         else:
