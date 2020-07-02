@@ -27,13 +27,16 @@ def get(config, request, session):
     try:
         limit_str = urlparams['limit']
     except KeyError:
-        limit = config['API']['max_items']
+        limit = config['API']['pagination']['max']
     else:
-        limit = max(
-            1,
-            int(
-                limit_str,
+        limit = min(
+            max(
+                config['API']['pagination']['min'],
+                int(
+                    limit_str,
+                ),
             ),
+            config['API']['pagination']['max'],
         )
 
     scan_arguments['Limit'] = limit

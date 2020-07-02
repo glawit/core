@@ -47,13 +47,19 @@ def post(config, request, session):
         try:
             limit_str = data['limit']
         except KeyError:
-            limit = config['API']['max_items']
+            limit = config['API']['pagination']['max']
         else:
-            limit = max(
-                2,
-                int(
-                    limit_str,
+            limit = min(
+                max(
+                    max(
+                        config['API']['pagination']['min'],
+                        2,
+                    ),
+                    int(
+                        limit_str,
+                    ),
                 ),
+                config['API']['pagination']['max'],
             )
 
         half_limit = limit // 2
