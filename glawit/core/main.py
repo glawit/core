@@ -173,22 +173,25 @@ def process_request(config, handler, request, session):
                 enough = viewer_access >= minimum_access
 
                 if enough:
-                    try:
-                        data = request['data']
-                    except KeyError:
-                        # FIXME
-                        #assert header_says_body_is_json
+                    if 'data' not in request:
+                        try:
+                            body = request['body']
+                        except KeyError:
+                            pass
+                        else:
+                            # FIXME
+                            #assert header_says_body_is_json
 
-                        logger.debug(
-                            'body: %s',
-                            body,
-                        )
+                            logger.debug(
+                                'body: %s',
+                                body,
+                            )
 
-                        data = json.loads(
-                            body,
-                        )
+                            data = json.loads(
+                                body,
+                            )
 
-                        request['data'] = data
+                            request['data'] = data
 
                     github_id = result['viewer']['id']
 
