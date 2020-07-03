@@ -1,5 +1,3 @@
-import base64
-import json
 import logging
 
 import glawit.core.access
@@ -142,8 +140,8 @@ def get(
     ]
 
     github_users = glawit.core.github.fetch_users_info(
+        github_ids=github_ids,
         graphql_client=session['GitHub']['GraphQL'],
-        ids=github_ids,
     )
 
     response_data = {
@@ -190,8 +188,6 @@ def post(
     viewer_access = session['GitHub']['viewer_access']
 
     if viewer_access >= glawit.core.access.RepositoryAccess.WRITE:
-        locktable = config['locktable']
-
         request_data = request['data']
         request_path = request_data['path']
 
@@ -219,8 +215,8 @@ def post(
         lock_github_id = lock['github_id']
 
         github_user = glawit.core.github.fetch_user_info(
+            github_id=lock_github_id,
             graphql_client=session['GitHub']['GraphQL'],
-            id=lock_github_id,
         )
 
         lock_github_username = github_user['login']

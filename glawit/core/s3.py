@@ -19,7 +19,7 @@ def check_object(bucket, key, session):
             Bucket=bucket,
             Key=key,
         )
-    #except s3.exceptions.NoSuchKey:
+    # except s3.exceptions.NoSuchKey:
     except botocore.exceptions.ClientError as e:
         error_code = e.response['Error']['Code']
 

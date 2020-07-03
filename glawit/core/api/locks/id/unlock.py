@@ -82,8 +82,8 @@ def post(
                 lock_github_id = attributes['github_id']['S']
 
                 github_user = glawit.core.github.fetch_user_info(
+                    github_id=lock_github_id,
                     graphql_client=session['GitHub']['GraphQL'],
-                    id=lock_github_id,
                 )
 
                 response_data = {

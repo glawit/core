@@ -36,18 +36,22 @@ def post(
             pass
         else:
             cursors = glawit.core.json64.decode(
-                cursor_encoded,
+                cursors_encoded,
             )
 
             try:
-                scan_arguments_ours['ExclusiveStartKey'] = cursors['ours']
+                cursor_ours = cursors['ours']
             except KeyError:
                 pass
+            else:
+                scan_arguments_ours['ExclusiveStartKey'] = cursor_ours
 
             try:
-                scan_arguments_theirs['ExclusiveStartKey'] = cursors['theirs']
+                cursor_theirs = cursors['theirs']
             except KeyError:
                 pass
+            else:
+                scan_arguments_theirs['ExclusiveStartKey'] = cursor_theirs
 
         try:
             limit_str = data['limit']
@@ -75,6 +79,10 @@ def post(
             pass
         else:
             ref = request_ref['name']
+            logger.debug(
+                'git ref: %s',
+                ref,
+            )
 
         next_cursors = dict(
         )
@@ -103,8 +111,8 @@ def post(
         ]
 
         github_users = glawit.core.github.fetch_users_info(
+            github_ids=github_ids,
             graphql_client=session['GitHub']['GraphQL'],
-            ids=github_ids,
         )
 
         ours = [
@@ -150,8 +158,8 @@ def post(
         ]
 
         github_users = glawit.core.github.fetch_users_info(
+            github_ids=github_ids,
             graphql_client=session['GitHub']['GraphQL'],
-            ids=github_ids,
         )
 
         theirs = [

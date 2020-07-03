@@ -30,16 +30,13 @@ def post(
             session,
         ):
     boto3_session = session['boto3']['session']
-    viewer_access = session['GitHub']['viewer_access']
 
     data = request['data']
     request_headers = request['headers']
 
-
     s3 = boto3_session.client(
         's3',
     )
-
 
     # FIXME
     repository_public = False
@@ -47,7 +44,6 @@ def post(
     aws_region = config['AWS']['region']
     store_bucket = config['large_file_store']['bucket_name']
     storage_class = config['large_file_store']['storage_class']
-
 
     request_objects = data['objects']
     request_operation = data['operation']
@@ -99,10 +95,8 @@ def post(
         # FIXME: turn into proper HTTP response
         assert transfer_basic_passed
 
-
     s3_method = s3_methods[request_operation]
     http_method = http_methods[request_operation]
-
 
     response_objects = list(
     )

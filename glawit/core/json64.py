@@ -2,14 +2,25 @@ import base64
 import json
 import logging
 
+logger = logging.getLogger(
+    __name__,
+)
 
-def decode(token):
+
+def decode(
+            token,
+        ):
     token_bytes = base64.urlsafe_b64decode(
         token,
     )
 
     token_json = token_bytes.decode(
         encoding='utf-8',
+    )
+
+    logger.debug(
+        'decoded JSON: %s',
+        token_json,
     )
 
     data = json.loads(
@@ -19,7 +30,9 @@ def decode(token):
     return data
 
 
-def encode(data):
+def encode(
+            data,
+        ):
     token_json = json.dumps(
         data,
     )
@@ -34,6 +47,11 @@ def encode(data):
 
     token = token_bytes_base64.decode(
         encoding='utf-8',
+    )
+
+    logger.debug(
+        'encoded JSON: %s',
+        token,
     )
 
     return token

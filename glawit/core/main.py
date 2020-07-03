@@ -115,8 +115,7 @@ def process_request(
                         except KeyError:
                             pass
                         else:
-                            # FIXME
-                            #assert header_says_body_is_json
+                            # FIXME: check value of Content-Type header
 
                             logger.debug(
                                 'body: %s',
