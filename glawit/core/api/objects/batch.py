@@ -120,7 +120,7 @@ def post(config, request, session):
         request_object_size = request_object['size']
 
         logger.debug(
-            'object #%i: size: %i',
+            'object #%i: size: %i bytes',
             object_index,
             request_object_size,
         )
