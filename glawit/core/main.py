@@ -135,7 +135,7 @@ def process_request(
                         github_id,
                     )
 
-                    session['GitHub'] = {
+                    session.github = {
                         'GraphQL': client,
                         'id': github_id,
                         'viewer_access': viewer_access,

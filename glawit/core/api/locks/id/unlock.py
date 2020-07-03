@@ -30,8 +30,8 @@ def post(
         current_github_user_id = session['GitHub']['id']
         viewer_access = session['GitHub']['viewer_access']
 
-        extra_arguments = dict(
-        )
+        extra_arguments = {
+        }
 
         if not force:
             extra_arguments['ConditionExpression'] = 'github_id = :github_id'

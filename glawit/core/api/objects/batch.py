@@ -98,8 +98,8 @@ def post(
     s3_method = s3_methods[request_operation]
     http_method = http_methods[request_operation]
 
-    response_objects = list(
-    )
+    response_objects = [
+    ]
 
     iterator = enumerate(
         request_objects,
@@ -123,8 +123,8 @@ def post(
             request_object_size,
         )
 
-        response_object = dict(
-        )
+        response_object = {
+        }
 
         response_object['oid'] = request_object_oid
 
@@ -233,8 +233,8 @@ def post(
                 response_object['size'] = request_object_size
                 response_object['authenticated'] = True
 
-                action_upload = dict(
-                )
+                action_upload = {
+                }
 
                 upload_url = s3.generate_presigned_url(
                     ClientMethod=s3_method,
@@ -261,8 +261,8 @@ def post(
 
                 action_upload['expires_in'] = 3600
 
-                action_verify = dict(
-                )
+                action_verify = {
+                }
 
                 action_verify['href'] = f'{api_endpoint}/verify'
                 action_verify['header'] = {

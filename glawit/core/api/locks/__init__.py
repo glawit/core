@@ -53,12 +53,12 @@ def get(
             cursor,
         )
 
-    filter_expressions = list(
-    )
-    expression_attribute_names = dict(
-    )
-    expression_attribute_values = dict(
-    )
+    filter_expressions = [
+    ]
+    expression_attribute_names = {
+    }
+    expression_attribute_values = {
+    }
 
     try:
         lock_id = urlparams['id']

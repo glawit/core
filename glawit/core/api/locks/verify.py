@@ -25,10 +25,10 @@ def post(
             'dynamodb',
         )
 
-        scan_arguments_ours = dict(
-        )
-        scan_arguments_theirs = dict(
-        )
+        scan_arguments_ours = {
+        }
+        scan_arguments_theirs = {
+        }
 
         try:
             cursors_encoded = data['cursor']
@@ -84,8 +84,8 @@ def post(
                 ref,
             )
 
-        next_cursors = dict(
-        )
+        next_cursors = {
+        }
 
         current_github_user_id = session['GitHub']['id']
 
