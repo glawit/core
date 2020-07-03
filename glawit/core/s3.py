@@ -31,7 +31,7 @@ def check_object(bucket, key, session):
         )
 
         if error_code == '404':
-            logger.warning(
+            logger.debug(
                 'bucket %s: key %s: absent',
                 bucket,
                 key,
