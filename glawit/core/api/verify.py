@@ -1,6 +1,5 @@
 import logging
 
-import glawit.core.access
 import glawit.core.s3
 
 logger = logging.getLogger(
@@ -8,18 +7,32 @@ logger = logging.getLogger(
 )
 
 
-def post(config, request, session):
+def post(
+            config,
+            request,
+            session,
+        ):
     status_code = None
 
     boto3_session = session['boto3']['session']
-    viewer_access = session['GitHub']['viewer_access']
 
     store_bucket = config['large_file_store']['bucket_name']
 
     data = request['data']
 
     oid = data['oid']
+
+    logger.debug(
+        'checking object with ID %s',
+        oid,
+    )
+
     expected_object_size = data['size']
+
+    logger.debug(
+        'expected size: %i bytes',
+        expected_object_size,
+    )
 
     object_key = oid
 
@@ -30,7 +43,9 @@ def post(config, request, session):
     )
 
     if object_check_result == -1:
-        # bucket does not contain object with that key
+        logger.error(
+            'bucket does not contain object with specified ID',
+        )
 
         status_code = 404
     else:
@@ -44,28 +59,11 @@ def post(config, request, session):
             status_code = 200
         else:
             logger.error(
-                'size does not match; client expected %i',
-                expected_object_size,
+                'object on S3 has a different size (%i bytes)',
+                object_size,
             )
 
             status_code = 409
-
-    if False:
-        if viewer_permission >= glawit.core.access.RepositoryAccess.READONLY:
-            assert True
-        else:
-            response = {
-                'statusCode': 403,
-                'headers': {
-                    'Content-Type': 'application/vnd.git-lfs+json',
-                },
-                'body': {
-                    'message': 'forbidden',
-                    # FIXME
-                    'documentation_url': 'https://mo.in/',
-                },
-                'isBase64Encoded': False,
-            }
 
     response = {
         'statusCode': status_code,

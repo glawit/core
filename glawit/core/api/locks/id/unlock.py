@@ -9,7 +9,11 @@ logger = logging.getLogger(
 )
 
 
-def post(config, request, session):
+def post(
+            config,
+            request,
+            session,
+        ):
     viewer_access = session['GitHub']['viewer_access']
 
     if viewer_access >= glawit.core.access.RepositoryAccess.WRITE:

@@ -12,11 +12,12 @@ logger = logging.getLogger(
 )
 
 
-def process_request(config, handler, request, session):
-    github_owner = config['GitHub']['owner']
-    github_repo = config['GitHub']['repo']
-    store_bucket = config['large_file_store']['bucket_name']
-
+def process_request(
+            config,
+            handler,
+            request,
+            session,
+        ):
     headers = request['headers']
 
     try:
@@ -27,89 +28,23 @@ def process_request(config, handler, request, session):
         )
 
         response = {
-            'statusCode': 401,
-            'headers': {
-                'Content-Type': 'application/vnd.git-lfs+json',
-                'LFS-Authenticate': 'Basic realm="Git LFS", charset="UTF-8"',
-            },
             'body': {
                 'message': 'Pass your GitHub user as username and a personal token as password',
                 'documentation_url': 'https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line',
             },
+            'headers': {
+                'Content-Type': 'application/vnd.git-lfs+json',
+                'LFS-Authenticate': 'Basic realm="Git LFS", charset="UTF-8"',
+            },
+            'statusCode': 401,
         }
     else:
         logger.debug(
             'Authorization header present',
         )
 
-#        pieces = authorization_header_value.split(
-#            maxsplit=1,
-#            sep=' ',
-#        )
-#
-#        authorization_type = pieces[0]
-#        authorization_credentials = pieces[1]
-#
-#        logger.debug(
-#            'authorization type: %s',
-#            authorization_type,
-#        )
-#
-#        token = None
-#
-#        if authorization_type == 'Basic':
-#            logger.debug(
-#                'encoded authorization credentials: %s',
-#                authorization_credentials,
-#            )
-#
-#            authorization_credentials = base64.b64decode(
-#                authorization_credentials,
-#                validate=True,
-#            )
-#
-#            authorization_credentials = authorization_credentials.decode(
-#                'utf-8',
-#            )
-#
-#            logger.debug(
-#                'decoded authorization credentials: %s',
-#                authorization_credentials,
-#            )
-#
-#            pieces = authorization_credentials.split(
-#                sep=':',
-#            )
-#
-#            username = pieces[0]
-#            password = pieces[1]
-#
-#            logger.debug(
-#                'username: %s',
-#                username,
-#            )
-#
-#            logger.debug(
-#                'password: %s',
-#                password,
-#            )
-#
-#            token = password
-#        elif authorization_type == 'Token':
-#            token = authorization_credentials
-#        else:
-#            response = {
-#                'statusCode': 401,
-#                'headers': {
-#                    'Content-Type': 'application/vnd.git-lfs+json',
-#                    'LFS-Authenticate': 'Basic realm="Git LFS", charset="UTF-8"',
-#                },
-#                'body': {
-#                    'message': 'missing authentication',
-#                    # FIXME
-#                    'documentation_url': 'https://mo.in/',
-#                },
-#            }
+        github_owner = config['GitHub']['owner']
+        github_repo = config['GitHub']['repo']
 
         transport = gql.transport.requests.RequestsHTTPTransport(
             headers={
@@ -145,15 +80,15 @@ def process_request(config, handler, request, session):
             )
         except Exception:
             response = {
-                'statusCode': 403,
-                'headers': {
-                    'Content-Type': 'application/vnd.git-lfs+json',
-                },
                 'body': {
                     'message': 'The GitHub API token provided lacks access to this GitHub repository.',
                     # FIXME
                     'documentation_url': 'https://mo.in/',
                 },
+                'headers': {
+                    'Content-Type': 'application/vnd.git-lfs+json',
+                },
+                'statusCode': 403,
             }
         else:
             logger.debug(
@@ -214,25 +149,25 @@ def process_request(config, handler, request, session):
                     )
                 else:
                     response = {
-                        'statusCode': 403,
-                        'headers': {
-                            'Content-Type': 'application/vnd.git-lfs+json',
-                        },
                         'body': {
                             'message': 'Your permission level for this repository is not enough.',
                             'documentation_url': 'https://help.github.com/en/github/getting-started-with-github/access-permissions-on-github',
                         },
+                        'headers': {
+                            'Content-Type': 'application/vnd.git-lfs+json',
+                        },
+                        'statusCode': 403,
                     }
             else:
                 response = {
-                    'statusCode': 403,
-                    'headers': {
-                        'Content-Type': 'application/vnd.git-lfs+json',
-                    },
                     'body': {
                         'message': 'It seems the GitHub repository is private and the GitHub API token provided lacks access to private repositories. Grant it the corresponding scope and try again.',
                         'documentation_url': 'https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/#available-scopes',
                     },
+                    'headers': {
+                        'Content-Type': 'application/vnd.git-lfs+json',
+                    },
+                    'statusCode': 403,
                 }
 
     try:

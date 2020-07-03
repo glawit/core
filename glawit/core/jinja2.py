@@ -5,7 +5,9 @@ import jinja2
 data_package = 'glawit.core.data.jinja2'
 
 
-def load_template(name):
+def load_template(
+            name,
+        ):
     exists = importlib.resources.is_resource(
         name=name,
         package=data_package,

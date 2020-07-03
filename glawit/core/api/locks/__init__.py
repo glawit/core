@@ -12,7 +12,11 @@ logger = logging.getLogger(
 )
 
 
-def get(config, request, session):
+def get(
+            config,
+            request,
+            session,
+        ):
     locktable = config['locktable']
 
     urlparams = request['urlparams']
@@ -178,7 +182,11 @@ def get(config, request, session):
     return response
 
 
-def post(config, request, session):
+def post(
+            config,
+            request,
+            session,
+        ):
     viewer_access = session['GitHub']['viewer_access']
 
     if viewer_access >= glawit.core.access.RepositoryAccess.WRITE:

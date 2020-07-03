@@ -24,7 +24,11 @@ http_methods = {
 }
 
 
-def post(config, request, session):
+def post(
+            config,
+            request,
+            session,
+        ):
     boto3_session = session['boto3']['session']
     viewer_access = session['GitHub']['viewer_access']
 
