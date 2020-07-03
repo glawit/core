@@ -28,6 +28,7 @@ def post(config, request, session):
     viewer_access = session['GitHub']['viewer_access']
 
     data = request['data']
+    request_headers = request['headers']
 
 
     s3 = boto3_session.client(
@@ -192,10 +193,9 @@ def post(config, request, session):
 #                ExpiresIn=7200,
 #            )
             action_verify['href'] = f'{api_endpoint}/verify'
-            # FIXME
-            #action_verify['header'] = {
-            #    #'Authorization': f'Bearer {token}',
-            #}
+            action_verify['header'] = {
+                'Authorization': request_headers['Authorization'],
+            }
             action_verify['expires_in'] = 2147483647
 #            action_verify['expires_in'] = 7200
 
