@@ -54,7 +54,7 @@ def post(config, request, session):
     )
 
     logger.debug(
-        '%i objects specified',
+        'amount of objects specified: %i',
         len(
             request_objects,
         ),
