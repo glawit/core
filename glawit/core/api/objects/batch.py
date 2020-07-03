@@ -188,14 +188,14 @@ def post(config, request, session):
                     }
                 else:
                     logger.error(
-                        'object #%i: object on S3 has a different size (%i)',
+                        'object #%i: object on S3 has a different size (%i bytes)',
                         object_index,
                         object_size,
                     )
 
                     response_object['error'] = {
                         'code': 409,
-                        'message': 'Object on the server has the same ID but different size',
+                        'message': f'Object on S3 has the same ID but different size ({ object_size } bytes)',
                     }
             else:
                 logger.error(
@@ -217,14 +217,14 @@ def post(config, request, session):
                     )
                 else:
                     logger.error(
-                        'object #%i: object on S3 has a different size (%i)',
+                        'object #%i: object on S3 has a different size (%i bytes)',
                         object_index,
                         object_size,
                     )
 
                     response_object['error'] = {
                         'code': 409,
-                        'message': 'Object on the server has a different size',
+                        'message': f'Object on S3 has a different size ({ object_size } bytes)',
                     }
             else:
                 logger.info(
