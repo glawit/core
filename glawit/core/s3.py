@@ -3,6 +3,7 @@ import logging
 import botocore
 
 logger = logging.getLogger(
+    __name__,
 )
 
 

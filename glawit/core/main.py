@@ -8,6 +8,7 @@ import gql.transport.requests
 import glawit.core.access
 
 logger = logging.getLogger(
+    __name__,
 )
 
 

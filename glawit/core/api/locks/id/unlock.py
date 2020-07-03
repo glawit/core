@@ -5,6 +5,7 @@ import botocore
 import glawit.core.github
 
 logger = logging.getLogger(
+    __name__,
 )
 
 

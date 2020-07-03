@@ -4,6 +4,7 @@ import glawit.core.access
 import glawit.core.json64
 
 logger = logging.getLogger(
+    __name__,
 )
 
 

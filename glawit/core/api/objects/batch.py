@@ -4,6 +4,7 @@ import glawit.core.access
 import glawit.core.s3
 
 logger = logging.getLogger(
+    __name__,
 )
 
 allowed_viewer_permissions_upload = {

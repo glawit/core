@@ -8,6 +8,7 @@ import glawit.core.json64
 import glawit.core.locks
 
 logger = logging.getLogger(
+    __name__,
 )
 
 

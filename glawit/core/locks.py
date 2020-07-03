@@ -6,6 +6,7 @@ import botocore
 import glawit.core.dynamodb
 
 logger = logging.getLogger(
+    __name__,
 )
 
 
