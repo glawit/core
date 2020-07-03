@@ -50,7 +50,7 @@ def check_object(bucket, key, session):
         object_size = s3_response['ContentLength']
 
         logger.debug(
-            'bucket %s: key %s: size: %i',
+            'bucket %s: key %s: size: %i bytes',
             bucket,
             key,
             object_size,
