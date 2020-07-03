@@ -48,6 +48,18 @@ def post(config, request, session):
     request_objects = data['objects']
     request_operation = data['operation']
 
+    logger.debug(
+        'operation: %s',
+        request_operation,
+    )
+
+    logger.debug(
+        '%i objects specified',
+        len(
+            request_objects,
+        ),
+    )
+
     try:
         request_ref = data['ref']
     except KeyError:
@@ -63,11 +75,15 @@ def post(config, request, session):
     try:
         request_transfers = data['transfers']
     except KeyError:
-        pass
+        logger.debug(
+            'client did not specify any transfer adapter; assuming "basic"',
+        )
     else:
         logger.debug(
-            'transfer adapters: %s',
-            request_transfers,
+            'client specified these transfer adapters: %s',
+            ', '.join(
+                request_transfers,
+            ),
         )
 
         transfer_basic_passed = False
@@ -87,9 +103,27 @@ def post(config, request, session):
     response_objects = list(
     )
 
-    for request_object in request_objects:
+    iterator = enumerate(
+        request_objects,
+        start=1,
+    )
+
+    for object_index, request_object in iterator:
         request_object_oid = request_object['oid']
+
+        logger.debug(
+            'object #%i: OID: %s',
+            object_index,
+            request_object_oid,
+        )
+
         request_object_size = request_object['size']
+
+        logger.debug(
+            'object #%i: size: %i',
+            object_index,
+            request_object_size,
+        )
 
         response_object = dict(
         )
@@ -106,9 +140,15 @@ def post(config, request, session):
 
         object_exists = object_check_result != -1
 
+        if object_exists:
+            object_size = object_check_result
+
         if request_operation == 'download':
             if object_exists:
-                object_size = object_check_result
+                logger.debug(
+                    'object #%i: exists',
+                    object_index,
+                )
 
                 response_object['size'] = object_size
 
@@ -147,63 +187,95 @@ def post(config, request, session):
                         },
                     }
                 else:
+                    logger.error(
+                        'object #%i: object on S3 has a different size (%i)',
+                        object_index,
+                        object_size,
+                    )
+
                     response_object['error'] = {
                         'code': 409,
                         'message': 'Object on the server has the same ID but different size',
                     }
             else:
+                logger.error(
+                    'object #%i: does not exist',
+                    object_index,
+                )
+
                 response_object['error'] = {
                     'code': 404,
                     'message': 'Object does not exist',
                 }
 
-        elif request_operation == 'upload' and not object_exists:
-            response_object['size'] = request_object_size
-            response_object['authenticated'] = True
+        elif request_operation == 'upload':
+            if object_exists:
+                if object_size == request_object_size:
+                    logger.info(
+                        'object #%i: already present on S3',
+                        object_index,
+                    )
+                else:
+                    logger.error(
+                        'object #%i: object on S3 has a different size (%i)',
+                        object_index,
+                        object_size,
+                    )
 
-            action_upload = dict(
-            )
+                    response_object['error'] = {
+                        'code': 409,
+                        'message': 'Object on the server has a different size',
+                    }
+            else:
+                logger.info(
+                    'object #%i: does not exist; must be uploaded',
+                    object_index,
+                )
 
-            action_upload['href'] = s3.generate_presigned_url(
-                ClientMethod=s3_method,
-                HttpMethod=http_method,
-                Params={
-                    'Bucket': store_bucket,
-                    'Key': object_key,
-                    'StorageClass': storage_class,
-                },
-                ExpiresIn=3600,
-            )
+                response_object['size'] = request_object_size
+                response_object['authenticated'] = True
 
-            action_upload['header'] = {
-                'x-amz-storage-class': storage_class,
-            }
+                action_upload = dict(
+                )
 
-            action_upload['expires_in'] = 3600
+                upload_url = s3.generate_presigned_url(
+                    ClientMethod=s3_method,
+                    HttpMethod=http_method,
+                    Params={
+                        'Bucket': store_bucket,
+                        'Key': object_key,
+                        'StorageClass': storage_class,
+                    },
+                    ExpiresIn=3600,
+                )
 
-            action_verify = dict(
-            )
+                logger.info(
+                    'object #%i: upload URL: %s',
+                    object_index,
+                    upload_url,
+                )
 
-#            action_verify['href'] = s3.generate_presigned_url(
-#                ClientMethod='head_object',
-#                HttpMethod='POST',
-#                Params={
-#                    'Bucket': store_bucket,
-#                    'Key': object_key,
-#                },
-#                ExpiresIn=7200,
-#            )
-            action_verify['href'] = f'{api_endpoint}/verify'
-            action_verify['header'] = {
-                'Authorization': request_headers['authorization'],
-            }
-            action_verify['expires_in'] = 2147483647
-#            action_verify['expires_in'] = 7200
+                action_upload['href'] = upload_url
 
-            response_object['actions'] = {
-                'upload': action_upload,
-                'verify': action_verify,
-            }
+                action_upload['header'] = {
+                    'x-amz-storage-class': storage_class,
+                }
+
+                action_upload['expires_in'] = 3600
+
+                action_verify = dict(
+                )
+
+                action_verify['href'] = f'{api_endpoint}/verify'
+                action_verify['header'] = {
+                    'Authorization': request_headers['authorization'],
+                }
+                action_verify['expires_in'] = 2147483647
+
+                response_object['actions'] = {
+                    'upload': action_upload,
+                    'verify': action_verify,
+                }
 
         response_objects.append(
             response_object,
