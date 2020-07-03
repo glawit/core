@@ -156,6 +156,7 @@ def post(config, request, session):
                 }
 
         elif request_operation == 'upload' and not object_exists:
+            response_object['size'] = request_object_size
             response_object['authenticated'] = True
 
             action_upload = dict(
