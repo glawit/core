@@ -10,6 +10,7 @@ logger = logging.getLogger(
 
 
 def post(
+            boto3_session,
             config,
             request,
             session,
@@ -26,7 +27,6 @@ def post(
         )
         lock_id = request['path_variables']['lock_id']
 
-        boto3_session = session['boto3']['session']
         current_github_user_id = session['GitHub']['id']
         viewer_access = session['GitHub']['viewer_access']
 

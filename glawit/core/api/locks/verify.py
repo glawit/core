@@ -9,6 +9,7 @@ logger = logging.getLogger(
 
 
 def post(
+            boto3_session,
             config,
             request,
             session,
@@ -20,7 +21,6 @@ def post(
 
         data = request['data']
 
-        boto3_session = session['boto3']['session']
         dynamodb = boto3_session.client(
             'dynamodb',
         )

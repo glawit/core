@@ -13,10 +13,10 @@ logger = logging.getLogger(
 
 
 def process_request(
+            boto3_session,
             config,
             handler,
             request,
-            session,
         ):
     headers = request['headers']
 
@@ -135,13 +135,16 @@ def process_request(
                         github_id,
                     )
 
-                    session.github = {
-                        'GraphQL': client,
-                        'id': github_id,
-                        'viewer_access': viewer_access,
+                    session = {
+                        'GitHub': {
+                            'GraphQL': client,
+                            'id': github_id,
+                            'viewer_access': viewer_access,
+                        },
                     }
 
                     response = handler(
+                        boto3_session=boto3_session,
                         config=config,
                         request=request,
                         session=session,

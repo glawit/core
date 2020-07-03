@@ -25,12 +25,11 @@ http_methods = {
 
 
 def post(
+            boto3_session,
             config,
             request,
             session,
         ):
-    boto3_session = session['boto3']['session']
-
     data = request['data']
     request_headers = request['headers']
 

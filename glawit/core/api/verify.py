@@ -8,13 +8,12 @@ logger = logging.getLogger(
 
 
 def post(
+            boto3_session,
             config,
             request,
             session,
         ):
     status_code = None
-
-    boto3_session = session['boto3']['session']
 
     store_bucket = config['large_file_store']['bucket_name']
 

@@ -11,6 +11,7 @@ logger = logging.getLogger(
 
 
 def get(
+            boto3_session,
             config,
             request,
             session,
@@ -18,8 +19,6 @@ def get(
     locktable = config['locktable']
 
     urlparams = request['urlparams']
-
-    boto3_session = session['boto3']['session']
 
     scan_arguments = {
         'ReturnConsumedCapacity': 'NONE',
@@ -181,6 +180,7 @@ def get(
 
 
 def post(
+            boto3_session,
             config,
             request,
             session,
@@ -190,8 +190,6 @@ def post(
     if viewer_access >= glawit.core.access.RepositoryAccess.WRITE:
         request_data = request['data']
         request_path = request_data['path']
-
-        boto3_session = session['boto3']['session']
 
         try:
             request_ref = request_data['ref']
