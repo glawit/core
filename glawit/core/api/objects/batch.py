@@ -194,7 +194,7 @@ def post(config, request, session):
 #            )
             action_verify['href'] = f'{api_endpoint}/verify'
             action_verify['header'] = {
-                'Authorization': request_headers['Authorization'],
+                'Authorization': request_headers['authorization'],
             }
             action_verify['expires_in'] = 2147483647
 #            action_verify['expires_in'] = 7200
