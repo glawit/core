@@ -20,6 +20,11 @@ class Boto3Session:
                 client_name,
             )
 
+            logger.debug(
+                '%s client created',
+                client_name,
+            )
+
             self.clients[client_name] = client
 
         self.session = session
