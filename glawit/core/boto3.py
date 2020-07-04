@@ -5,7 +5,7 @@ logger = logging.getLogger(
 )
 
 
-class Boto3Session:
+class Session:
     def __init__(
                 self,
                 session,
