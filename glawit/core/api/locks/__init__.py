@@ -15,6 +15,7 @@ def get(
             config,
             request,
             session,
+            requests_session,
         ):
     locktable = config['locktable']
 
@@ -139,8 +140,9 @@ def get(
     ]
 
     github_users = glawit.core.github.fetch_users_info(
+        authorization_header_value=session['GitHub']['authorization_header_value'],
         github_ids=github_ids,
-        graphql_client=session['GitHub']['GraphQL'],
+        requests_session=requests_session,
     )
 
     response_data = {
@@ -213,8 +215,9 @@ def post(
         lock_github_id = lock['github_id']
 
         github_user = glawit.core.github.fetch_user_info(
+            authorization_header_value=session['GitHub']['authorization_header_value'],
             github_id=lock_github_id,
-            graphql_client=session['GitHub']['GraphQL'],
+            requests_session=requests_session,
         )
 
         lock_github_username = github_user['login']

@@ -1,11 +1,8 @@
-import importlib.resources
 import json
 import logging
 
-import gql
-import gql.transport.requests
-
 import glawit.core.access
+import glawit.core.github
 
 logger = logging.getLogger(
     __name__,
@@ -17,6 +14,7 @@ def process_request(
             config,
             handler,
             request,
+            requests_session,
         ):
     headers = request['headers']
 
@@ -46,37 +44,15 @@ def process_request(
         github_owner = config['GitHub']['owner']
         github_repo = config['GitHub']['repo']
 
-        transport = gql.transport.requests.RequestsHTTPTransport(
-            headers={
-                'Authorization': authorization_header_value,
-            },
-            url='https://api.github.com/graphql',
-        )
-
-        client = gql.Client(
-            fetch_schema_from_transport=False,
-            transport=transport,
-        )
-
-        graphql_query_code = importlib.resources.read_text(
-            encoding='utf-8',
-            package='glawit.core.data.graphql',
-            resource='main.graphql',
-        )
-
-        graphql_query = gql.gql(
-            graphql_query_code,
-        )
-
-        graphql_query_variables = {
-            'owner': github_owner,
-            'repo': github_repo,
-        }
-
         try:
-            result = client.execute(
-                document=graphql_query,
-                variable_values=graphql_query_variables,
+            result = glawit.core.github.query(
+                authorization_header_value=authorization_header_value,
+                query_name='main',
+                requests_session=requests_session,
+                variables={
+                    'owner': github_owner,
+                    'repo': github_repo,
+                },
             )
         except Exception:
             response = {
@@ -137,7 +113,7 @@ def process_request(
 
                     session = {
                         'GitHub': {
-                            'GraphQL': client,
+                            'authorization_header_value': authorization_header_value,
                             'id': github_id,
                             'viewer_access': viewer_access,
                         },
@@ -148,6 +124,7 @@ def process_request(
                         config=config,
                         request=request,
                         session=session,
+                        requests_session=requests_session,
                     )
                 else:
                     response = {

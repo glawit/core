@@ -29,6 +29,7 @@ def post(
             config,
             request,
             session,
+            requests_session,
         ):
     data = request['data']
     request_headers = request['headers']

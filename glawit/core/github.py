@@ -1,22 +1,44 @@
-import importlib.resources
 import logging
 
-import gql
+import glawit.core.graphql
+
+graphql_endpoint = 'https://api.github.com/graphql'
 
 logger = logging.getLogger(
     __name__,
 )
 
 
+def query(
+            authorization_header_value,
+            query_name,
+            requests_session,
+            variables=None,
+        ):
+    result = glawit.core.graphql.query(
+        headers={
+            'Authorization': authorization_header_value,
+        },
+        query_name=query_name,
+        query_subpackage='github',
+        url=graphql_endpoint,
+        variables=variables,
+    )
+
+    return result
+
+
 def fetch_user_info(
+            authorization_header_value,
             github_id,
-            graphql_client,
+            requests_session,
         ):
     nodes = query_user_nodes(
+        authorization_header_value=authorization_header_value,
         github_ids=[
             github_id,
         ],
-        graphql_client=graphql_client,
+        requests_session=requests_session,
     )
 
     node = nodes[0]
@@ -39,12 +61,14 @@ def fetch_user_info(
 
 
 def fetch_users_info(
+            authorization_header_value,
             github_ids,
-            graphql_client,
+            requests_session,
         ):
     nodes_list = query_user_nodes(
+        authorization_header_value=authorization_header_value,
         github_ids=github_ids,
-        graphql_client=graphql_client,
+        requests_session=requests_session,
     )
 
     nodes = {
@@ -56,26 +80,17 @@ def fetch_users_info(
 
 
 def query_user_nodes(
+            authorization_header_value,
             github_ids,
-            graphql_client,
+            requests_session,
         ):
-    graphql_query_code = importlib.resources.read_text(
-        encoding='utf-8',
-        package='glawit.core.data.graphql',
-        resource='users.graphql',
-    )
-
-    graphql_query = gql.gql(
-        graphql_query_code,
-    )
-
-    graphql_query_variables = {
-        'ids': github_ids,
-    }
-
-    result = graphql_client.execute(
-        document=graphql_query,
-        variable_values=graphql_query_variables,
+    result = query(
+        authorization_header_value=authorization_header_value,
+        query_name='users',
+        requests_session=requests_session,
+        variables={
+            'ids': github_ids,
+        },
     )
 
     nodes = result['nodes']

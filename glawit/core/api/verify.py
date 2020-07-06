@@ -12,6 +12,7 @@ def post(
             config,
             request,
             session,
+            requests_session,
         ):
     status_code = None
 

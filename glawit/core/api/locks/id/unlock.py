@@ -14,6 +14,7 @@ def post(
             config,
             request,
             session,
+            requests_session,
         ):
     viewer_access = session['GitHub']['viewer_access']
 
@@ -82,8 +83,9 @@ def post(
                 lock_github_id = attributes['github_id']['S']
 
                 github_user = glawit.core.github.fetch_user_info(
+                    authorization_header_value=session['GitHub']['authorization_header_value'],
                     github_id=lock_github_id,
-                    graphql_client=session['GitHub']['GraphQL'],
+                    requests_session=requests_session,
                 )
 
                 response_data = {

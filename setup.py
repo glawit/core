@@ -9,11 +9,11 @@ packages = setuptools.find_namespace_packages(
 
 setuptools.setup(
     install_requires=[
-        'gql == 2.0.0',
+        'requests == 2.24.0',
     ],
     name='glawit_core',
     package_data={
-        'glawit.core.data.graphql': [
+        'glawit.core.data.graphql.github': [
             '*.graphql',
         ],
     },
