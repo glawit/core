@@ -8,6 +8,20 @@ logger = logging.getLogger(
 )
 
 
+class Error(
+            Exception,
+        ):
+    pass
+
+
+class QueryError(
+            Error,
+        ):
+    def __init__(
+            ):
+        pass
+
+
 def query(
             query_name,
             query_subpackage,

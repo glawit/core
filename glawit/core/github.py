@@ -21,6 +21,7 @@ def query(
         },
         query_name=query_name,
         query_subpackage='github',
+        requests_session=requests_session,
         url=graphql_endpoint,
         variables=variables,
     )

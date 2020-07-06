@@ -3,6 +3,7 @@ import logging
 
 import glawit.core.access
 import glawit.core.github
+import glawit.core.graphql
 
 logger = logging.getLogger(
     __name__,
@@ -54,7 +55,7 @@ def process_request(
                     'repo': github_repo,
                 },
             )
-        except Exception:
+        except glawit.core.graphql.QueryError:
             response = {
                 'body': {
                     'message': 'The GitHub API token provided lacks access to this GitHub repository.',
