@@ -69,6 +69,11 @@ def query(
 
         query_result = response_data['data']
 
+        logger.debug(
+            'query result: %s',
+            query_result,
+        )
+
         return query_result
     else:
         logger.error(

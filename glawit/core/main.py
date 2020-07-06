@@ -68,11 +68,6 @@ def process_request(
                 'statusCode': 403,
             }
         else:
-            logger.debug(
-                'GitHub query result: %s',
-                result,
-            )
-
             result_repository = result['repository']
             if result_repository:
                 viewer_permission = result_repository['viewerPermission']
