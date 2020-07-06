@@ -186,6 +186,7 @@ def post(
             config,
             request,
             session,
+            requests_session,
         ):
     viewer_access = session['GitHub']['viewer_access']
 
