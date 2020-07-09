@@ -8,6 +8,7 @@ logger = logging.getLogger(
 class Session:
     def __init__(
                 self,
+                region,
                 session,
                 clients=[
                 ],
@@ -18,6 +19,7 @@ class Session:
         for client_name in clients:
             client = session.client(
                 client_name,
+                region_name=region,
             )
 
             logger.debug(
