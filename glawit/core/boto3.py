@@ -17,9 +17,17 @@ class Session:
         }
 
         for client_name in clients:
+            extra_client_args = {
+            }
+
+            # Fix for pre-signed URLs
+            if client_name == 's3':
+                extra_client_args['endpoint_url'] = f'https://s3.{ region }.amazonaws.com'
+
             client = session.client(
                 client_name,
                 region_name=region,
+                **extra_client_args,
             )
 
             logger.debug(
