@@ -213,6 +213,8 @@ def post(
                         'object #%i: already present on S3',
                         object_index,
                     )
+
+                    response_object['size'] = object_size
                 else:
                     logger.error(
                         'object #%i: object on S3 has a different size (%i bytes)',
