@@ -9,7 +9,7 @@ packages = setuptools.find_namespace_packages(
 
 setuptools.setup(
     install_requires=[
-        'requests == 2.24.0',
+        'requests == 2.31.0',
     ],
     name='glawit_core',
     package_data={
